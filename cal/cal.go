@@ -11,7 +11,7 @@ import (
     "github.com/blalor/flight-cal/tz_lookup"
 )
 
-func CreateFlightCal(flight, departAirport string, departTimeStr string, arriveAirport string, arriveTimeStr string) (*ics.Calendar, error) {
+func CreateFlightCal(prefix string, flight, departAirport string, departTimeStr string, arriveAirport string, arriveTimeStr string) (*ics.Calendar, error) {
     const timeFmt = "2006-01-02T15:04"
 
     departApt, err := ap_info.LookupByIata(departAirport)
@@ -60,7 +60,7 @@ func CreateFlightCal(flight, departAirport string, departTimeStr string, arriveA
 
     evt.SetStartAt(departTime)
     evt.SetEndAt(arriveTime)
-    evt.SetSummary(fmt.Sprintf("✈️%s %s → %s", flight, departApt.Iata, arriveApt.Iata))
+    evt.SetSummary(fmt.Sprintf("%s %s %s → %s", prefix, flight, departApt.Iata, arriveApt.Iata))
     evt.SetLocation(departApt.Name)
 
     return c, nil

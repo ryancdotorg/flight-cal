@@ -18,6 +18,7 @@ type Options struct {
     Debug bool     `env:"DEBUG"    long:"debug"    description:"enable debug"`
     LogFile string `env:"LOG_FILE" long:"log-file" description:"path to JSON log file"`
 
+    TitlePrefix       string `long:"prefix"         description:"prefix for event title" default:"✈️"`
     FlightDescription string `long:"flight"         description:"flight description (eg. AA 1234)" required:"y"`
     DepartAirport     string `long:"depart-airport" description:"departure airport" required:"y"`
     DepartTime        string `long:"depart-time"    description:"departure time, 2006-01-02T15:04" required:"y"`
@@ -60,6 +61,7 @@ func main() {
     log.Infof("version: %s", version)
 
     c, err := cal.CreateFlightCal(
+        opts.TitlePrefix,
         opts.FlightDescription,
         opts.DepartAirport,
         opts.DepartTime,
