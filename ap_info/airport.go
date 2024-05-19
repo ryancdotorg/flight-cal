@@ -12,10 +12,20 @@ import (
 type Airport struct {
     Ident     string
     Name      string
+    Country   string
+    Region    string
+    City      string
     Iata      string
     GpsCode   string
     Latitude  float64
     Longitude float64
+}
+
+func (apt Airport) Flag() (string) {
+    iso_country_code := []rune(apt.Country)
+    ri1 := (iso_country_code[0] - 0x41 + 0x1f1e6)
+    ri2 := (iso_country_code[1] - 0x41 + 0x1f1e6)
+    return string([]rune{ri1, ri2})
 }
 
 func lookup(f func(map[string]string) bool) (*Airport, error) {
@@ -59,6 +69,9 @@ func lookup(f func(map[string]string) bool) (*Airport, error) {
             apt = &Airport{
                 Ident:     rec["ident"],
                 Name:      rec["name"],
+                Country:   rec["iso_country"],
+                Region:    rec["iso_region"],
+                City:      rec["municipality"],
                 Iata:      rec["iata_code"],
                 GpsCode:   rec["gps_code"],
                 Latitude:  lat,
