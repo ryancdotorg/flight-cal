@@ -18,7 +18,7 @@ type Airport struct {
     Longitude float64
 }
 
-func Lookup(code string) (*Airport, error) {
+func lookup(f func(map[string]string) bool) (*Airport, error) {
     dataReader := bytes.NewReader(MustAsset("assets/airports.csv"))
 
     c := csv.NewReader(dataReader)
@@ -45,7 +45,7 @@ func Lookup(code string) (*Airport, error) {
             rec[headers[i]] = v
         }
 
-        if rec["ident"] == code {
+        if f(rec) {
             lat, err := strconv.ParseFloat(rec["latitude_deg"], 64)
             if err != nil {
                 return nil, err
@@ -72,56 +72,14 @@ func Lookup(code string) (*Airport, error) {
     return apt, nil
 }
 
+func Lookup(code string) (*Airport, error) {
+    return lookup(func(rec map[string]string) bool {
+        return rec["ident"] == code
+    })
+}
+
 func LookupByIata(iata string) (*Airport, error) {
-    dataReader := bytes.NewReader(MustAsset("assets/airports.csv"))
-
-    c := csv.NewReader(dataReader)
-
-    headers, err := c.Read()
-    if err != nil {
-        return nil, err
-    }
-
-    var apt *Airport
-
-    for {
-        row, err := c.Read()
-        if err == io.EOF {
-            break
-        }
-
-        if err != nil {
-            return nil, err
-        }
-
-        rec := make(map[string]string)
-        for i, v := range row {
-            rec[headers[i]] = v
-        }
-
-        if rec["iata_code"] == iata {
-            lat, err := strconv.ParseFloat(rec["latitude_deg"], 64)
-            if err != nil {
-                return nil, err
-            }
-
-            lon, err := strconv.ParseFloat(rec["longitude_deg"], 64)
-            if err != nil {
-                return nil, err
-            }
-
-            apt = &Airport{
-                Ident:     rec["ident"],
-                Name:      rec["name"],
-                Iata:      rec["iata_code"],
-                GpsCode:   rec["gps_code"],
-                Latitude:  lat,
-                Longitude: lon,
-            }
-
-            break
-        }
-    }
-
-    return apt, nil
+    return lookup(func(rec map[string]string) bool {
+        return rec["iata_code"] == iata
+    })
 }
