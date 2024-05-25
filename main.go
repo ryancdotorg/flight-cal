@@ -20,6 +20,7 @@ type Options struct {
 
     TitlePrefix       string `long:"prefix"         description:"prefix for event title" default:"✈️"`
     FlightDescription string `long:"flight"         description:"flight description (eg. AA 1234)" required:"y"`
+    RecordLocator     string `long:"record"         description:"record locator number (eg. A2BC34)"`
     DepartAirport     string `long:"depart-airport" description:"departure airport" required:"y"`
     DepartTime        string `long:"depart-time"    description:"departure time, 2006-01-02T15:04" required:"y"`
     ArriveAirport     string `long:"arrive-airport" description:"arrival airport" required:"y"`
@@ -63,6 +64,7 @@ func main() {
     c, err := cal.CreateFlightCal(
         opts.TitlePrefix,
         opts.FlightDescription,
+        opts.RecordLocator,
         opts.DepartAirport,
         opts.DepartTime,
         opts.ArriveAirport,

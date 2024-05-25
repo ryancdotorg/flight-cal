@@ -3,6 +3,7 @@ package cal
 import (
     "fmt"
     "time"
+    "strings"
 
     "github.com/arran4/golang-ical"
     "github.com/google/uuid"
@@ -12,6 +13,7 @@ import (
 )
 
 const timeFmtLong = "2006-01-02T15:04"
+const timeFmtShort = "Mon 15:04"
 const timeFmtTime = "15:04"
 const timeFmtDate = "2006-01-02"
 
@@ -36,7 +38,7 @@ func nextDay(t time.Time) time.Time {
     return changeDay(t, 1)
 }
 
-func CreateFlightCal(prefix string, flight, departAirport string, departTimeStr string, arriveAirport string, arriveTimeStr string) (*ics.Calendar, error) {
+func CreateFlightCal(prefix string, flight, record string, departAirport string, departTimeStr string, arriveAirport string, arriveTimeStr string) (*ics.Calendar, error) {
     departApt, err := ap_info.LookupByIata(departAirport)
     if err != nil {
         return nil, err
@@ -93,6 +95,33 @@ func CreateFlightCal(prefix string, flight, departAirport string, departTimeStr 
         duration = arriveTime.Sub(departTime).Hours()
     }
 
+    dur := arriveTime.Sub(departTime)
+    durStr := fmt.Sprintf("%dh%02dm", int(dur.Hours()), int(dur.Minutes()) % 60)
+
+    var sb strings.Builder
+    sb.WriteString("🛫 ")
+    sb.WriteString(departApt.City)
+    sb.WriteString(" ")
+    sb.WriteString(departApt.Iata)
+    sb.WriteString(" ")
+    sb.WriteString(departTime.Format(timeFmtShort))
+    sb.WriteString(" (local time)\\n")
+    sb.WriteString("🛬 ")
+    sb.WriteString(arriveApt.City)
+    sb.WriteString(" ")
+    sb.WriteString(arriveApt.Iata)
+    sb.WriteString(" ")
+    sb.WriteString(arriveTime.Format(timeFmtShort))
+    sb.WriteString(" (local time)\\n")
+    sb.WriteString("⏱️ ")
+    sb.WriteString(durStr)
+
+    if record != "" {
+        sb.WriteString("\\n")
+        sb.WriteString("🎫 ")
+        sb.WriteString(record)
+    }
+
     c := ics.NewCalendar()
     c.SetMethod(ics.MethodPublish)
 
@@ -103,6 +132,9 @@ func CreateFlightCal(prefix string, flight, departAirport string, departTimeStr 
     evt.SetEndAt(arriveTime)
     evt.SetSummary(fmt.Sprintf("%s %s %s → %s", prefix, flight, departApt.Iata, arriveApt.Iata))
     evt.SetLocation(departApt.Name)
+    desc := sb.String()
+    evt.SetDescription(desc)
+    fmt.Println(desc)
 
     return c, nil
 }

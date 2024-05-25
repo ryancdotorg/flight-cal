@@ -14,7 +14,7 @@ import (
 var _ = Describe("Cal", func() {
     It("does … something?", func() {
 
-        c, err := CreateFlightCal("✈️", "AA 1234", "RIC", "2018-08-01T05:01", "SFO", "2018-08-01T08:42")
+        c, err := CreateFlightCal("✈️", "AA 1234", "", "RIC", "2018-08-01T05:01", "SFO", "2018-08-01T08:42")
         Expect(err).To(BeNil())
 
         Expect(c.Events()).To(HaveLen(1))
